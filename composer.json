@@ -1,0 +1,23 @@
+{
+	"name": "asaritech/ukey1-php-sdk",
+	"description": "Ukey1 SDK for PHP",
+	"keywords": ["asaritech", "ukey1", "sdk"],
+	"type": "library",
+	"homepage": "https://github.com/asaritech/ukey1-php-sdk",
+	"license": "The MIT License",
+	"authors": [
+		{
+			"name": "Ukey1 Community",
+			"homepage": "https://github.com/asaritech/ukey1-php-sdk/contributors"
+		}
+	],
+	"require": {
+		"php": "^5.5|^7.0",
+		"guzzlehttp/guzzle": "~6.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"Ukey1\\": "src/Ukey1/"
+		}
+	}
+}
