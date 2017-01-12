@@ -51,7 +51,7 @@ class AccessToken extends Endpoint
     /**
      * Gateway status - user canceled their request
      */
-    const STATUS_CANCEL = "cancel";
+    const STATUS_CANCELED = "canceled";
     
     /**
      * Gateway status - user authorized your app
