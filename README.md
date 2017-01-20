@@ -167,6 +167,7 @@ try {
     // Now you can read user's data
     $userModule = new User($app);
     $userModule->setAccessToken($_SESSION["accessToken"]);
+    $userModule->execute();
     $user = $userModule->getUser();
 
     if ($user->check()) {
