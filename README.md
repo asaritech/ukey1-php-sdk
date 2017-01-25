@@ -2,8 +2,6 @@
 
 This repository contains the open source PHP SDK that allows you to access the **[Ukey1 API](http://ukey.one)** from your PHP app.
 
-## IMPORTANT NOTICE: Our platform is currently in beta. Contact us if you want to use Ukey1 in your app.
-
 ## About Ukey1
 
 [Ukey1](http://ukey.one) is *an aggregator of your user's social identities*. 
@@ -42,7 +40,6 @@ $ composer require asaritech/ukey1-php-sdk
 ## Usage
 
 First, you need your app credentials (`App ID` and `Secret Key`). 
-NOTICE: At the moment you need to send us an email to get your credentials. 
 
 Ukey1 uses advanced security methods, so its flow may be a little bit more complicated. 
 But don't worry, this SDK is prepared to be as easy-to-use as possible.
