@@ -20,9 +20,11 @@ into one sophisticated solution. Read [more](http://ukey.one/).
 6. SDK checks the result and gets a unique access token
 7. That's it - user is authenticated (your app can make API calls to get user's data)
 
-### RAML API specification
+### API specification
 
-You can also download our [API specification](https://ukey1.nooledge.com/var/public/api.raml) in [RAML format](http://raml.org/).
+You can also download our API specification in the following formats: 
+- [RAML 1.0 specification](https://ukey1.nooledge.com/var/public/api.raml) (learn more about [RAML](http://raml.org/))
+- [Swagger 2.0 specification](https://ukey1.nooledge.com/var/public/api.yaml) (learn more about [Swagger](http://swagger.io/) or open the specification in [editor](http://editor.swagger.io/#/))
 
 ## Requirements
 
