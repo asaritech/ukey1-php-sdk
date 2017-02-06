@@ -222,8 +222,7 @@ class Request
             $this->httpClient = new Client(
                 [
                     "base_uri" => $this->host,
-                    "timeout" => self::TIMEOUT,
-                    "allow_redirects" => false
+                    "timeout" => self::TIMEOUT
                 ]
             );
             
