@@ -263,10 +263,6 @@ class Request
      */
     private function createSignature(&$json) 
     {
-        if (!function_exists("password_hash")) {
-            throw new EndpointException("Required function password_hash() doesn't exist");
-        }
-        
         $password = $this->version
          . $this->endpoint
          . $this->method
