@@ -3,6 +3,11 @@
 Note that the Ukey1 PHP SDK follows [SemVer](http://semver.org/).
 
 
+## 2.x
+
+- 2.0.0 (2017-02-12)
+  - Hash algorithm for the request signature has been changed (all older versions are incompatible now!!!)
+
 ## 1.x
 
 - 1.0.1 (2017-02-06)

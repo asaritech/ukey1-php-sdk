@@ -48,10 +48,9 @@ class Result
     /**
      * Creates an instance of API result
      * 
-     * @param \GuzzleHttp\Psr7\Response $response       An instance of PSR-7 response
-     * @param int                       $expectedStatus Expected HTTP status
+     * @param \GuzzleHttp\Psr7\Response $response An instance of PSR-7 response
      */
-    public function __construct(Response $response, $expectedStatus)
+    public function __construct(Response $response)
     {
         $this->response = $response;
     }

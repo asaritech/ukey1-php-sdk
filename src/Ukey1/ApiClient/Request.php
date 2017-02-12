@@ -196,13 +196,12 @@ class Request
     /**
      * Sends a HTTP request
      * 
-     * @param array|null $body           Array of parameters that will be send in JSON body
-     * @param int        $expectedStatus Expected HTTP status
+     * @param array|null $body Array of parameters that will be send in JSON body
      * 
      * @return \Ukey1\ApiClient\Result
      * @throws \Ukey1\Exceptions\EndpointException
      */
-    public function send(array $body = null, $expectedStatus = 200)
+    public function send(array $body = null)
     {
         $json = $this->createJsonBody($body);
         $signature = $this->createSignature($json);
@@ -231,8 +230,7 @@ class Request
                     $this->method, 
                     $this->version . $this->endpoint, 
                     $options
-                ), 
-                $expectedStatus
+                )
             );
         } catch (TransferException $e) {
             throw new EndpointException($e->getMessage(), $e->getCode(), $e);
@@ -283,7 +281,7 @@ class Request
             $password .= $this->accessToken;
         }
         
-        return password_hash($password, PASSWORD_BCRYPT);
+        return hash("sha512", $password);
     }
     
     /**
