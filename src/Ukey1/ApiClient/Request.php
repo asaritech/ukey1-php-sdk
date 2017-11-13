@@ -75,13 +75,6 @@ class Request
     private $host;
     
     /**
-     * API version
-     *
-     * @var string
-     */
-    private $version;
-    
-    /**
      * Endpoint
      *
      * @var string
@@ -136,19 +129,6 @@ class Request
     public function setHost($host)
     {
         $this->host = $host;
-        return $this;
-    }
-    
-    /**
-     * Sets an API version
-     * 
-     * @param string $version Version (e.g. /v1)
-     * 
-     * @return \Ukey1\ApiClient\Request
-     */
-    public function setVersion($version)
-    {
-        $this->version = $version;
         return $this;
     }
     
@@ -228,7 +208,7 @@ class Request
             return new Result(
                 $this->httpClient->request(
                     $this->method, 
-                    $this->version . $this->endpoint, 
+                    $this->endpoint, 
                     $options
                 )
             );
@@ -263,21 +243,26 @@ class Request
      */
     private function createSignature(&$json) 
     {
-        $password = $this->version
-         . $this->endpoint
-         . $this->method
-         . $this->appId
-         . $this->secretKey;
+        $string = $this->appId . $this->method . $this->endpoint;
         
         if ($json) {
-            $password .= $json;
+            $string .= $json;
         }
         
         if ($this->accessToken) {
-            $password .= $this->accessToken;
+            $string .= $this->accessToken;
         }
         
-        return hash("sha512", $password);
+        $digest = hash("sha512", $string);
+      
+        $sign = "";
+        $result = openssl_public_encrypt($digest, $sign, $this->secretKey, OPENSSL_PKCS1_OAEP_PADDING);
+
+        if (!$result) {
+            throw new EndpointException("Request signing failed");
+        }
+        
+        return rawurlencode(base64_encode($sign));
     }
     
     /**
@@ -290,11 +275,12 @@ class Request
      */
     private function prepareHeaders(&$signature, array $headers = []) 
     {
-        $headers["x-ukey1-app"] = $this->appId;
-        $headers["x-ukey1-signature"] = $signature;
+        $headers["X-Origin"] = self::prepareOrigin();
+        $headers["X-Ukey1-App"] = $this->appId;
+        $headers["X-Ukey1-Signature"] = $signature;
         
         if ($this->accessToken) {
-            $headers["Authorization"] = "UKEY1 " . $this->accessToken;
+            $headers["Authorization"] = "Bearer " . $this->accessToken;
         }
         
         return $headers;
@@ -308,5 +294,21 @@ class Request
     private static function prepareUserAgent() 
     {
         return self::USER_AGENT . App::SDK_VERSION . " " . GuzzleHttp\default_user_agent();
+    }
+    
+    /**
+     * Prepares X-Origin value
+     * 
+     * @return string
+     */
+    private static function prepareOrigin()
+    {
+        $origin = App::getDomain();
+        
+        if (!$origin) {
+          $origin = $_SERVER["REQUEST_SCHEME"] . "://" . (isset($_SERVER["HTTP_HOST"]) ? $_SERVER["HTTP_HOST"] : $_SERVER["SERVER_NAME"]);
+        }
+        
+        return $origin;
     }
 }

@@ -31,7 +31,7 @@ use Ukey1\ApiClient\Request;
 use Ukey1\Exceptions\EndpointException;
 
 /**
- * API endpoint /auth/token
+ * API endpoint /auth/v2/token
  * 
  * @package Ukey1
  * @author  Zdenek Hofler <developers@asaritech.com>
@@ -41,7 +41,7 @@ class AccessToken extends Endpoint
     /**
      * Endpoint
      */
-    const ENDPOINT = "/auth/token";
+    const ENDPOINT = "/auth/v2/token";
     
     /**
      * Ukey1 GET param
@@ -57,11 +57,6 @@ class AccessToken extends Endpoint
      * Gateway status - user authorized your app
      */
     const STATUS_AUTHORIZED = "authorized";
-    
-    /**
-     * Gateway status - the request expired
-     */
-    const STATUS_EXPIRED = "expired";
     
     /**
      * Your reference ID 
@@ -97,14 +92,7 @@ class AccessToken extends Endpoint
      *
      * @var string
      */
-    private $accesssTokenExpiration;
-    
-    /**
-     * Token for getting a new access token
-     *
-     * @var string
-     */
-    private $refreshToken;
+    private $accessTokenExpiration;
     
     /**
      * Array of granted permissions
@@ -147,6 +135,10 @@ class AccessToken extends Endpoint
      */
     public function execute()
     {
+        if ($this->executed) {
+            return true;
+        }
+      
         $check = $this->checkInputs();
         
         if (!$check) {
@@ -155,14 +147,14 @@ class AccessToken extends Endpoint
         
         $request = new Request(Request::POST);
         $request->setHost($this->app->host())
-            ->setVersion(self::API_VERSION)
             ->setEndpoint(self::ENDPOINT)
             ->setCredentials($this->app->appId(), $this->app->secretKey());
         
         $result = $request->send(
             [
                 "request_id" => $this->requestId,
-                "connect_id" => $this->connectId
+                "connect_id" => $this->connectId,
+                "auth_code" => $this->getParam("code")
             ]
         );
         
@@ -173,14 +165,21 @@ class AccessToken extends Endpoint
         }
         
         $this->accessToken = $data["access_token"];
-        $this->accesssTokenExpiration = $data["expiration"];
+        $this->accessTokenExpiration = $data["expiration"];
         $this->grantedScope = $data["scope"];
-        
-        if (isset($data["refresh_token"])) {
-            $this->refreshToken = $data["refresh_token"];
-        }
+        $this->executed = true;
         
         return true;
+    }
+    
+    /**
+     * Returns true if user authorized the request
+     * 
+     * @return bool
+     */
+    public function check()
+    {
+      return $this->execute();
     }
     
     /**
@@ -197,6 +196,7 @@ class AccessToken extends Endpoint
         
         $requestId = $this->getParam("request_id");
         $connectId = $this->getParam("connect_id");
+        $code = $this->getParam("code");
         $signature = $this->getParam("signature");
         $status = $this->getParam("result");
         
@@ -208,7 +208,13 @@ class AccessToken extends Endpoint
             throw new EndpointException("Invalid connect ID");
         }
         
-        $this->checkSignature($signature, $status);
+        if ($status == self::STATUS_AUTHORIZED) {
+          if (!$code) {
+            throw new EndpointException("No auth code");
+          }
+        }
+        
+        $this->checkSignature(base64_decode($signature, true), $status, $code);
         
         return ($status == self::STATUS_AUTHORIZED);
     }
@@ -218,7 +224,7 @@ class AccessToken extends Endpoint
      * 
      * @param string $key The param key
      * 
-     * @return string|null
+     * @return string
      */
     private function getParam($key)
     {
@@ -229,7 +235,7 @@ class AccessToken extends Endpoint
         if (isset($this->getParams[$key]) && $this->getParams[$key] && (is_string($this->getParams[$key]) || is_numeric($this->getParams[$key]))) {
             return $this->getParams[$key];
         } else {
-            return null;
+            return "";
         }
     }
     
@@ -238,15 +244,23 @@ class AccessToken extends Endpoint
      * 
      * @param string $signature Security signature
      * @param string $status    Status
+     * @param string $code      Auth code
      * 
      * @throws \Ukey1\Exceptions\EndpointException
      */
-    private function checkSignature($signature, $status)
+    private function checkSignature($signature, $status, $code)
     {
-        $hash = hash("sha256", $this->app->appId() . $this->requestId . $this->connectId . $status . $this->app->secretKey());
-        
-        if ($signature != $hash) {
+        if (!$signature) {
             throw new EndpointException("Invalid signature");
+        }
+      
+        $data = $this->app->appId() . $this->requestId . $this->connectId . $code . $status;
+        $result = openssl_verify($data, $signature, $this->app->secretKey(), OPENSSL_ALGO_SHA512);
+        
+        if ($result < 1) {
+            $errstr = openssl_error_string();
+
+            throw new EndpointException("Invalid signature or an openssl error (" . ($errstr ? $errstr : "-") . ")");
         }
     }
 
@@ -267,23 +281,13 @@ class AccessToken extends Endpoint
      */
     public function getAccessTokenExpiration()
     {
-        return $this->accesssTokenExpiration;
-    }
-
-    /**
-     * Returns a refresh token
-     * 
-     * @return string
-     */
-    public function getRefreshToken()
-    {
-        return $this->refreshToken;
+        return $this->accessTokenExpiration;
     }
 
     /**
      * Returns an array of granted permissions
      * 
-     * @return string
+     * @return array
      */
     public function getScope()
     {

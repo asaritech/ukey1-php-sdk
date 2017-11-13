@@ -3,6 +3,11 @@
 Note that the Ukey1 PHP SDK follows [SemVer](http://semver.org/).
 
 
+## 3.x
+
+- 3.0.0 (2017-10-05)
+  - Support for new Ukey1 APIv2 (please note that APIv1 will be terminated in November 15, 2017)
+
 ## 2.x
 
 - 2.0.0 (2017-02-12)

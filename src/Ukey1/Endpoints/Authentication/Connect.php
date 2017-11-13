@@ -31,7 +31,7 @@ use Ukey1\ApiClient\Request;
 use Ukey1\Exceptions\EndpointException;
 
 /**
- * API endpoint /auth/connect
+ * API endpoint /auth/v2/connect
  * 
  * @package Ukey1
  * @author  Zdenek Hofler <developers@asaritech.com>
@@ -41,7 +41,7 @@ class Connect extends Endpoint
     /**
      * Endpoint
      */
-    const ENDPOINT = "/auth/connect";
+    const ENDPOINT = "/auth/v2/connect";
     
     /**
      * Your reference ID 
@@ -125,9 +125,12 @@ class Connect extends Endpoint
      */
     public function execute()
     {
+        if ($this->executed) {
+            return;
+        }
+        
         $request = new Request(Request::POST);
         $request->setHost($this->app->host())
-            ->setVersion(self::API_VERSION)
             ->setEndpoint(self::ENDPOINT)
             ->setCredentials($this->app->appId(), $this->app->secretKey());
         
@@ -141,16 +144,13 @@ class Connect extends Endpoint
         
         $data = $result->getData();
         
-        if (!(isset($data["connect_id"]) && isset($data["gateway"]["url"]) && isset($data["gateway"]["expiration"]))) {
+        if (!(isset($data["connect_id"]) && isset($data["gateway"]))) {
             throw new EndpointException("Invalid result structure: " . $result->getBody());
         }
         
-        if (!$this->checkExpiration($data["gateway"]["expiration"])) {
-            throw new EndpointException("Gateway URL expired");
-        }
-        
         $this->connectId = $data["connect_id"];
-        $this->gatewayUrl = $data["gateway"]["url"];
+        $this->gatewayUrl = $data["gateway"];
+        $this->executed = true;
     }
     
     /**
@@ -160,6 +160,8 @@ class Connect extends Endpoint
      */
     public function getId()
     {
+        $this->execute();
+
         return $this->connectId;
     }
     
@@ -170,6 +172,8 @@ class Connect extends Endpoint
      */
     public function getGatewayUrl()
     {
+        $this->execute();
+        
         return $this->gatewayUrl;
     }
     
@@ -178,6 +182,8 @@ class Connect extends Endpoint
      */
     public function redirect()
     {
+        $this->execute();
+        
         if ($this->gatewayUrl) {
             $code = 302;
             $message = $code . " Found";

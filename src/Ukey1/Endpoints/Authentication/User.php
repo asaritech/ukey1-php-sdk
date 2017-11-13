@@ -30,9 +30,13 @@ use Ukey1\Endpoint;
 use Ukey1\User as UserEntity;
 use Ukey1\ApiClient\Request;
 use Ukey1\Exceptions\EndpointException;
+use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\ValidationData;
+use Lcobucci\JWT\Signer\Keychain;
+use Lcobucci\JWT\Signer\Rsa\Sha512;
 
 /**
- * API endpoint /me
+ * API endpoint /auth/v2/me
  * 
  * @package Ukey1
  * @author  Zdenek Hofler <developers@asaritech.com>
@@ -42,7 +46,7 @@ class User extends Endpoint
     /**
      * Endpoint
      */
-    const ENDPOINT = "/me";
+    const ENDPOINT = "/auth/v2/me";
     
     /**
      * Access token
@@ -57,6 +61,20 @@ class User extends Endpoint
      * @var array
      */
     private $resultData;
+    
+    /**
+     * Raw result
+     *
+     * @var string
+     */
+    private $resultRaw;
+    
+    /**
+     * JWT token object
+     *
+     * @var \Lcobucci\JWT\Token 
+     */
+    private $jwt;
     
     /**
      * Sets an access token
@@ -74,28 +92,87 @@ class User extends Endpoint
     /**
      * Executes an API request
      * 
-     * @return string
      * @throws \Ukey1\Exceptions\EndpointException
      */
     public function execute()
     {
+        if ($this->executed) {
+            return;
+        }
+      
         if (!$this->accessToken) {
             throw new EndpointException("No access token was provided");
         }
         
+        if (!$this->valid()) {
+            throw new EndpointException("Access token expired");
+        }
+        
         $request = new Request(Request::GET);
         $request->setHost($this->app->host())
-            ->setVersion(self::API_VERSION)
             ->setEndpoint(self::ENDPOINT)
             ->setCredentials($this->app->appId(), $this->app->secretKey())
             ->setAccessToken($this->accessToken);
         
         $result = $request->send();
         
-        $raw = $result->getBody();
+        $this->resultRaw = $result->getBody();
         $this->resultData = $result->getData();
+        $this->executed = true;
+    }
+    
+    /**
+     * Returns raw result
+     * 
+     * @return string
+     */
+    public function raw()
+    {
+        $this->execute();
+
+        return $this->resultRaw;
+    }
+    
+    /**
+     * Create JWT object from access token string
+     * 
+     * @throws EndpointException
+     */
+    private function jwt()
+    {
+        if (!$this->jwt) {
+            if (!$this->accessToken) {
+                throw new EndpointException("No access token was provided");
+            }
+
+            $this->jwt = (new Parser())->parse($this->accessToken);
+            $this->checkSignature();
+        }
+    }
+    
+    /**
+     * Signature verification
+     * 
+     * @throws EndpointException
+     */
+    private function checkSignature()
+    {
+        $signer = new Sha512();
+        $keychain = new Keychain();
         
-        return $raw;
+        if (!$this->jwt->verify($signer, $keychain->getPublicKey($this->app->secretKey()))) {
+            throw new EndpointException("Access token verification failed");
+        }
+    }
+
+    /**
+     * Returns an entity of the user (deprecated)
+     * 
+     * @return \Ukey1\User
+     */
+    public function getUser()
+    {
+        return $this->user();
     }
 
     /**
@@ -103,8 +180,48 @@ class User extends Endpoint
      * 
      * @return \Ukey1\User
      */
-    public function getUser()
+    public function user()
     {
+        $this->execute();
+
         return new UserEntity($this->resultData);
+    }
+    
+    /**
+     * Return user ID (parsed from access token)
+     * 
+     * @return string
+     */
+    public function id()
+    {
+        $this->jwt();
+        
+        $exist = $this->jwt->hasClaim("user");
+        
+        if (!$exist) {
+            throw new EndpointException("Invalid access token");
+        }
+        
+        $claim = $this->jwt->getClaim("user");
+        
+        if ($claim->id) {
+            return $claim->id;
+        } else {
+            throw new EndpointException("Invalid access token");
+        }
+    }
+    
+    /**
+     * Return if access token is valid
+     * 
+     * @return bool
+     */
+    public function valid()
+    {
+        $this->jwt();
+        
+        $data = new ValidationData();
+        
+        return $this->jwt->validate($data);
     }
 }

@@ -37,16 +37,18 @@ use Ukey1\App;
 abstract class Endpoint
 {
     /**
-     * API version
-     */
-    const API_VERSION = "/v1";
-    
-    /**
      * An entity of your app
      *
      * @var \Ukey1\App 
      */
     protected $app;
+    
+    /**
+     * Execution state
+     *
+     * @var bool
+     */
+    protected $executed = false;
     
     /**
      * Creates an instance of API endpoint
@@ -57,17 +59,5 @@ abstract class Endpoint
     {
         $this->app = $app;
         $this->app->check();
-    }
-    
-    /**
-     * Checks if expiration time is missed
-     * 
-     * @param string $expiration Expiration time
-     * 
-     * @return boolean
-     */
-    final protected function checkExpiration($expiration)
-    {
-        return (strtotime($expiration) > time());
     }
 }

@@ -36,17 +36,28 @@ use Ukey1\Exceptions\GeneratorException;
  */
 class RandomString
 {
+    const MIN = 8;
+    const MAX = 64;
+  
     /**
      * Generates a random string of bytes 
      * (note that returned string contains twice more characters than you specify in the parameter $length)
      * 
-     * @param int $length Number of bytes (default 16)
+     * @param int $length Number of bytes (default 64 returns 128 chars)
      * 
      * @return string
      * @throws \Ukey1\Exceptions\GeneratorException
      */
-    public static function generate($length = 16) 
+    public static function generate($length = self::MAX) 
     {
+        if ($length < self::MIN) {
+            $length = self::MIN;
+        }
+        
+        if ($length > self::MAX) {
+          $length = self::MAX;
+        }
+      
         if (!function_exists("openssl_random_pseudo_bytes")) {
             throw new GeneratorException("Required function openssl_random_pseudo_bytes() doesn't exist");
         }

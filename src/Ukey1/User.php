@@ -26,17 +26,15 @@
 
 namespace Ukey1;
 
-use Ukey1\Thumbnail;
-
 /**
- * An entity of the user
+ * User entity
  * 
  * @package Ukey1
  * @author  Zdenek Hofler <developers@asaritech.com>
  */
 class User
 {
-    private $authorized;
+    private $scope;
     private $data;
     
     /**
@@ -47,126 +45,111 @@ class User
     public function __construct(array $responseData)
     {
         $this->data = $responseData;
-        $this->authorized = (isset($this->data["authorized"]) && $this->data["authorized"] == 1);
+        $this->scope = $this->data["scope"];
     }
     
     /**
-     * Checks if you still have a valid authorization to user's data
+     * Returns current available scope
      * 
-     * @return boolean
+     * @return array
      */
-    public function check()
+    public function scope()
     {
-        return $this->authorized;
+        return $this->scope;
+    }
+    
+    /**
+     * Gets all user values
+     * 
+     * @return array
+     */
+    public function getAll()
+    {
+        return $this->data["user"];
+    }
+    
+    /**
+     * Gets any value
+     * 
+     * @param string $key
+     * @return mixed
+     */
+    public function get($key)
+    {
+        if (isset($this->data["user"][$key]) && !empty($this->data["user"][$key])) {
+            return $this->data["user"][$key];
+        }
+
+        return null;
     }
     
     /**
      * User ID
      * 
-     * @return string|int
+     * @return string
      */
     public function id()
     {
-        if ($this->authorized) {
-            return $this->data["user"]["id"];
-        }
-    }
-    
-    /**
-     * User's full name
-     * 
-     * @return string
-     */
-    public function fullname()
-    {
-        if ($this->authorized) {
-            return $this->data["user"]["name"]["display"];
-        }
+        return $this->get("id");
     }
     
     /**
      * User's firstname
      * 
-     * @return string
+     * @return string|null
      */
     public function firstname()
     {
-        if ($this->authorized) {
-            return $this->data["user"]["name"]["first_name"];
-        }
+        return $this->get("firstname");
     }
     
     /**
      * User's surname
      * 
-     * @return string
+     * @return string|null
      */
     public function surname()
     {
-        if ($this->authorized) {
-            return $this->data["user"]["name"]["surname"];
-        }
+        return $this->get("surname");
     }
     
     /**
      * User's language (ISO 639-1 code)
      * 
-     * @return string
+     * @return string|null
      */
     public function language()
     {
-        if ($this->authorized) {
-            return $this->data["user"]["locale"]["language"];
-        }
+        return $this->get("language");
     }
     
     /**
      * User's country (ISO 3166-1 alpha-3 code)
      * 
-     * @return string
+     * @return string|null
      */
     public function country()
     {
-        if ($this->authorized) {
-            return $this->data["user"]["locale"]["country"];
-        }
+        return $this->get("country");
     }
     
     /**
      * User's email
      * 
-     * @return string
+     * @return string|null
      */
     public function email()
     {
-        if ($this->authorized && isset($this->data["user"]["email"])) {
-            return $this->data["user"]["email"];
-        }
+        return $this->get("email");
     }
     
     /**
-     * User's thumbnail entity
+     * User's image (plain URL)
      * 
-     * @return \Ukey1\Thumbnail
+     * @return string|null
      */
-    public function thumbnailEntity()
+    public function image()
     {
-        if ($this->authorized && isset($this->data["user"]["thumbnail"])) {
-            return new Thumbnail($this->data["user"]["thumbnail"]);
-        }
-        
-        return new Thumbnail();
-    }
-    
-    /**
-     * User's thumbnail (plain URL)
-     * 
-     * @return string
-     */
-    public function thumbnailUrl()
-    {
-        if ($this->authorized && isset($this->data["user"]["thumbnail"]["url"])) {
-            return $this->data["user"]["thumbnail"]["url"];
-        }
+        return $this->get("image");
     }
 }

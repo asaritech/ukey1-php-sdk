@@ -39,15 +39,19 @@ class App
     /**
      * SDK version
      */
-    const SDK_VERSION = "1.0.0";
+    const SDK_VERSION = "3.0.0";
     
     /**
-     * Default host 
-     * 
-     * NOTICE: This API host may be changed in near future and in that case we 
-     * will notify all of developers from our database, of course in advance.
+     * Default host
      */
-    const HOST = "https://ukey1-api.nooledge.com";
+    const HOST = "https://api.ukey.one";
+    
+    /**
+     * Domain name
+     *
+     * @var string
+     */
+    private static $domain;
     
     /**
      * API host
@@ -107,7 +111,9 @@ class App
     public function secretKey($secretKey = null)
     {
         if ($secretKey) {
-            $this->secretKey = $secretKey;
+            $this->secretKey = "-----BEGIN PUBLIC KEY-----" . PHP_EOL . chunk_split($secretKey, 64, PHP_EOL) . "-----END PUBLIC KEY-----";
+            $this->checkKey();
+            
             return $this;
         }
         
@@ -115,7 +121,7 @@ class App
     }
     
     /**
-     * Returns the host
+     * Returns host
      * 
      * @return string
      */
@@ -125,14 +131,49 @@ class App
     }
     
     /**
-     * Checks if both App ID and secret key are set
+     * Checks if both App ID and Secret Key are set
      * 
      * @throws \Ukey1\Exceptions\AppException
      */
     public function check()
     {
         if (!($this->appId && $this->secretKey)) {
-            throw new AppException("Please set both your App ID and secret key");
+            throw new AppException("Please set both your App ID and Secret Key");
         }
+    }
+    
+    /**
+     * Check the key
+     * 
+     * @throws \Ukey1\Exceptions\AppException
+     */
+    private function checkKey()
+    {
+        $keyResource = openssl_get_publickey($this->secretKey);
+        $details = openssl_pkey_get_details($keyResource);
+
+        if (!isset($details["key"]) || $details["type"] !== OPENSSL_KEYTYPE_RSA) {
+             throw new AppException("Provided Secret Key is invalid");
+        }
+    }
+    
+    /**
+     * Set domain name
+     * 
+     * @param string $domain Domain name
+     */
+    public static function setDomain($domain)
+    {
+      self::$domain = substr($domain, -1) == "/" ? substr($domain, 0, -1) : $domain;
+    }
+    
+    /**
+     * Returns domain name
+     * 
+     * @return string
+     */
+    public static function getDomain()
+    {
+      return self::$domain;
     }
 }

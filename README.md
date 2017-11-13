@@ -1,13 +1,13 @@
 # Ukey1 SDK for PHP
 
-This repository contains the open source PHP SDK that allows you to access the **[Ukey1 API](http://ukey.one)** from your PHP app.
+This repository contains the open source PHP SDK that allows you to access the **[Ukey1 API](https://ukey.one)** from your PHP app.
+
+**!!! Please note that versions older than 3.0.0 are deprecated and don't work since November 15, 2017 !!!**
 
 ## About Ukey1
 
-[Ukey1](http://ukey.one) is *an aggregator of your user's social identities*. 
-Ukey1 is also a [OAuth 2.0](https://oauth.net/2/) provider but what is more important, it connects all major identity providers 
-(like [Google](https://developers.google.com/identity/) or [Facebook](https://developers.facebook.com/docs/facebook-login)) 
-into one sophisticated solution. Read [more](http://ukey.one/).
+[Ukey1](https://ukey.one) is an Authentication and Data Protection Service with the mission to enhance security of websites. 
+The service is designed to help you with EU GDPR compliance.
 
 ### Ukey1 flow for this PHP SDK
 
@@ -22,14 +22,13 @@ into one sophisticated solution. Read [more](http://ukey.one/).
 
 ### API specification
 
-You can also download our API specification in the following formats: 
-- [RAML 1.0 specification](https://ukey1.nooledge.com/var/public/api.raml) (learn more about [RAML](http://raml.org/))
-- [Swagger 2.0 specification](https://ukey1.nooledge.com/var/public/api.yaml) (learn more about [Swagger](http://swagger.io/) or open the specification in [editor](http://editor.swagger.io/#/))
+*Coming soon*
 
 ## Requirements
 
-- PHP 5.5
-- [Guzzle](http://guzzlephp.org)
+- PHP ^5.5|^7.0
+- [guzzlehttp/guzzle ~6.0](http://guzzlephp.org)
+- [lcobucci/jwt ^3.2](https://github.com/lcobucci/jwt)
 
 ## Installation
 
@@ -48,7 +47,7 @@ But don't worry, this SDK is prepared to be as easy-to-use as possible.
 
 ### Sign-in / sign-up / log-in - all buttons in one
 
-Your app may look like this:
+Your app may look like this (of course, it's optional):
 
 ```html
 <html>
@@ -66,29 +65,35 @@ Your app may look like this:
 
 ### Connection request
 
-Your script `login.php` makes a request to our endpoint `/auth/connect`.
+Your script `login.php` makes a request to our endpoint `/auth/v2/connect`.
 
 ```php
 session_start();
 
 use \Ukey1\App;
 use \Ukey1\Endpoints\Authentication\Connect;
+use \Ukey1\Endpoints\Authentication\SystemScopes;
 use \Ukey1\Generators\RandomString;
 
-define("APP_ID", "your-app-id");
-define("SECRET_KEY", "your-secret-key");
+// Set your domain name including protocol
+App::setDomain("http://example.org");
+
+define("APP_ID", "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx");
+define("SECRET_KEY", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+
+// Don't forget to use try/catch, the SDK may throw exceptions
 
 try {
   // Entity of your app
   $app = new App();
   $app->appId(APP_ID)
-      ->secretKey(SECRET_KEY);
+    ->secretKey(SECRET_KEY);
 
   // You need a request ID (no need to be unique but it's better)
   // It may be a random string or number
   // But it may also be your own reference ID
-  // Maximum length is 128 chars
-  $requestId = RandomString::generate(16); 
+  // Maximum length is 64 bytes (=128 chars)
+  $requestId = RandomString::generate(64); 
 
   // This is an URL for redirection back to the app
   // Do you know what is absolutely perfect?
@@ -96,23 +101,24 @@ try {
   // - it may contain query parameters and/or fragment
   $returnUrl = "http://example.org/login.php?action=check&user=XXX#fragment";
 
+  // You can check what permissions you can ask (useful for development purposes)
+  $systemModule = new SystemScopes($app);
+  $permissions = $systemModule->getAvailablePermissions();
+  //print_r($permissions);exit;
+
   // Endpoint module
-  // Here is a list of possible grants:
-  // - `access_token` (always default)
-  // - `refresh_token` (optional, use only if you will really need to refresh `access_token` when expires)
-  // - `email` (access to user's email)
-  // - `image` (access to user's thumbnail)
-  // NOTE: If you are eligible to use "!" (means a required value), you may use it with `email!` and `image!`
   $connectModule = new Connect($app);
   $connectModule->setRequestId($requestId)
-         ->setReturnUrl($returnUrl)
-         ->setScope([
-           "access_token",
-           "email",
-           "image"
-         ]);
-  $connectModule->execute();
-  $connectId = $connectModule->getId(); // $connectId is our reference ID (maximum length 128 chars)
+    ->setReturnUrl($returnUrl)
+    ->setScope([
+      "country",
+      "language",
+      "firstname",
+      "surname",
+      "email",
+      "image"
+    ]);
+  $connectId = $connectModule->getId(); // $connectId is our reference ID (UUID, exactly 36 chars)
 
   // Store $requestId and $connectId in your database or session, you will need them later
   $_SESSION["requestId"] = $requestId;
@@ -132,9 +138,9 @@ try {
 Once the user authorizes your app, Ukey1 redirects the user back to your app to the URL you specified earlier. 
 The same is done if user cancels the request.
 
-URL will look like this: `http://example.org/login.php?action=check&user=XXX&_ukey1[request_id]={REQUEST_ID}&_ukey1[connect_id]={CONNECT_ID}&_ukey1[result]={RESULT}&_ukey1[signature]={SIGNATURE}#fragment` 
-where `REQUEST_ID` is previously used `$requestId`, `CONNECT_ID` is previously used `$connectId`, `RESULT` may be *authorized*, *canceled* or *expired* and 
-`SIGNATURE` is a security signature.
+URL will look like this: `http://example.org/login.php?action=check&user=XXX&_ukey1[request_id]={REQUEST_ID}&_ukey1[connect_id]={CONNECT_ID}&_ukey1[code]={CODE}&_ukey1[result]={RESULT}&_ukey1[signature]={SIGNATURE}#fragment` 
+where `REQUEST_ID` is a previously used `$requestId`, `CONNECT_ID` is a previously used `$connectId`, `CODE` is a one-time code for getting the access token
+`RESULT` may be *authorized* or *canceled* and `SIGNATURE` is a security signature.
 
 ```php
 session_start();
@@ -143,6 +149,14 @@ use \Ukey1\App;
 use \Ukey1\Endpoints\Authentication\AccessToken;
 use \Ukey1\Endpoints\Authentication\User;
 
+// Set your domain name including protocol
+App::setDomain("http://example.org");
+
+define("APP_ID", "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx");
+define("SECRET_KEY", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+
+// Don't forget to use try/catch, the SDK may throw exceptions
+
 try {
   $app = new App();
   $app->appId(APP_ID)
@@ -150,76 +164,46 @@ try {
 
   // Endpoint module
   // You needs $requestId and $connectId that you previously stored in your database or session
-  // WARNING: Don't use values from GET query
+  // WARNING: DO NOT use values from GET query - the SDK will test if GET parameters are equal to those you provide here...
   $tokenModule = new AccessToken($app);
   $tokenModule->setRequestId($_SESSION["requestId"])
-         ->setConnectId($_SESSION["connectId"]);
-  $check = $tokenModule->execute(); // returns false if user cancels the request or it expires, otherwise returns true
+    ->setConnectId($_SESSION["connectId"]);
+  $check = $tokenModule->check(); // returns true if user authorized the request
 
   if ($check) {
-    // Store access token in your database or session
-    $_SESSION["accessToken"] = $tokenModule->getAccessToken();
+    $accessToken = $tokenModule->getAccessToken();
+
+    // You can also get token expiration (in usual case it's only few minutes) and the list of granted permissions
+    //$accessTokenExpiration = $tokenModule->getAccessTokenExpiration();
+    //$grantedScope = $tokenModule->getScope();
 
     // You can now unset request ID and connect ID from session or your database
     unset($_SESSION["requestId"], $_SESSION["connectId"]);
 
     // Now you can read user's data
     $userModule = new User($app);
-    $userModule->setAccessToken($_SESSION["accessToken"]);
-    $userModule->execute();
-    $user = $userModule->getUser();
+    $userModule->setAccessToken($accessToken);
 
-    if ($user->check()) {
-      // Store following ID in your database (maximum length 128 chars)
-      $userId = $user->id();
+    // If you don't need any personal data but ID, you can get user's ID without any other request (because it's stored in access token)
+    $userId = $userModule->id();
 
-      // User's fullname, firstname and surname
-      $fullname = $user->fullname();
-      $firstname = $user->firstname();
-      $surname = $user->surname();
+    // If you need more data, the following method will trigger request to get them
+    $user = $module->user();
 
-      // User's language (e.g. "en")
-      $language = $user->language();
+    $scope = $user->scope();
+    $firstname = $user->firstname();
+    $surname = $user->surname();
+    $language = $user->language();
+    $country = $user->country();
+    $email = $user->email();
+    $image = $user->image();
 
-      // User's country (e.g. "USA")
-      $country = $user->country();
+    // For other permissions (if applicable) you can use general `get()` method
+    $customScope = $user->get("another-available-scope");
 
-      // User's email
-      // WARNING: User may refuse to share their email with your app during authorization process
-      // If you are eligible to use "!" (means a required value) in scopes, you will always get user's email
-      $email = $user->email();
-
-      // User's image
-      // WARNING: User may refuse to share their image with your app during authorization process
-      // If you are eligible to use "!" (means a required value) in scopes, you will always get user's image
-      $imageSrc = $user->thumbnailUrl();
-      
-      // User may share their default image with your app (the first letter of firstname)
-      // If you would like to detect this case, you can use following:
-      $thumbnail = $user->thumbnailEntity();
-
-      if (!$thumbnail->isDefault()) {
-        $imageSrc = $thumbnail->url();
-        //$thumbnail->download();
-        //$thumbnail->width();
-        //$thumbnail->height();
-
-      } else {
-        // Use your own icon
-      }
-
-    } else {
-      // Meanwhile, the user canceled their consent in Ukey1 dashboard - i.e. you lost you access and need their authorization again
-      // You should destroy session and logout the user
-    }
-
-    // Redirect to your secure page which is visible only for authorized users
-    // It's a good practise to redirect user even if you want to keep them on the same page because it's better to hide all "_ukey1" query parameters.
-    $urlOfSecuredAreaIfUserIsLoggedIn = "http://example.org/welcome.php";
-    header("Location: {$urlOfSecuredAreaIfUserIsLoggedIn}");
-
+    // ... more your code ...
   } else {
-    // Authentication canceled...
+    // The request has been canceled by user...
   }
 
 } catch (\Exception $e) {
@@ -245,4 +229,4 @@ If you would like to work on another SDK (in your favorite language), we will gl
 ## Contact
 
 Reporting of any [issues](https://github.com/asaritech/ukey1-php-sdk/issues) are appreciated. 
-If you want to contribute or you have a critical security issue, please write us directly to [developers@asaritech.com](mailto:developers@asaritech.com).
+If you want to contribute or you have found a critical bug, please write us directly to [developers@asaritech.com](mailto:developers@asaritech.com).

@@ -31,17 +31,17 @@ use Ukey1\ApiClient\Request;
 use Ukey1\Exceptions\EndpointException;
 
 /**
- * API endpoint /auth/token/refresh
+ * API endpoint /auth/v2/system/scopes
  * 
  * @package Ukey1
  * @author  Zdenek Hofler <developers@asaritech.com>
  */
-class RefreshToken extends Endpoint
+class SystemScopes extends Endpoint
 {
     /**
      * Endpoint
      */
-    const ENDPOINT = "/auth/token/refresh";
+    const ENDPOINT = "/auth/v2/system/scopes";
     
     /**
      * Access token
@@ -51,36 +51,29 @@ class RefreshToken extends Endpoint
     private $accessToken;
     
     /**
-     * Access token expiration
-     *
-     * @var string
-     */
-    private $accesssTokenExpiration;
-    
-    /**
-     * Token for getting a new access token
-     *
-     * @var string
-     */
-    private $refreshToken;
-    
-    /**
-     * Array of granted permissions
+     * Available permissions
      *
      * @var array
      */
-    private $grantedScope;
+    private $scopes;
     
     /**
-     * Sets a refresh token
-     * 
-     * @param string $refreshToken Refresh token
-     * 
-     * @return \Ukey1\Endpoints\Authentication\RefreshToken
+     * Rejected permissions
+     *
+     * @var array
      */
-    public function setRefreshToken($refreshToken)
+    private $rejected;
+    
+    /**
+     * Sets an access token
+     * 
+     * @param string $accessToken Access token
+     * 
+     * @return \Ukey1\Endpoints\Authentication\User
+     */
+    public function setAccessToken($accessToken)
     {
-        $this->refreshToken = $refreshToken;
+        $this->accessToken = $accessToken;
         return $this;
     }
     
@@ -91,76 +84,55 @@ class RefreshToken extends Endpoint
      */
     public function execute()
     {
-        if (!$this->refreshToken) {
-            throw new EndpointException("No refresh token was provided");
+        if ($this->executed) {
+            return;
         }
         
-        $request = new Request(Request::POST);
+        $request = new Request(Request::GET);
         $request->setHost($this->app->host())
-            ->setVersion(self::API_VERSION)
             ->setEndpoint(self::ENDPOINT)
             ->setCredentials($this->app->appId(), $this->app->secretKey());
         
-        $result = $request->send(
-            [
-                "refresh_token" => $this->refreshToken
-            ]
-        );
+        if ($this->accessToken) {
+            $request->setAccessToken($this->accessToken);
+        }
         
+        $result = $request->send();
         $data = $result->getData();
         
-        if (!(isset($data["access_token"]) && isset($data["expiration"]) && isset($data["scope"]))) {
+        if (!(isset($data["permissions"]))) {
             throw new EndpointException("Invalid result structure: " . $result->getBody());
         }
         
-        $this->accessToken = $data["access_token"];
-        $this->accesssTokenExpiration = $data["expiration"];
-        $this->grantedScope = $data["scope"];
+        $this->scopes = $data["permissions"];
+        $this->executed = true;
         
-        if (isset($data["refresh_token"])) {
-            $this->refreshToken = $data["refresh_token"];
-        } else {
-            $this->refreshToken = null;
+        if (isset($data["rejected-permissions"])) {
+          $this->rejected = $data["rejected-permissions"];
         }
-    }
-
-    /**
-     * Returns an access token
-     * 
-     * @return string
-     */
-    public function getAccessToken()
-    {
-        return $this->accessToken;
     }
     
     /**
-     * Returns an expiration of the access token
+     * Returns available permissions
      * 
      * @return string
      */
-    public function getAccessTokenExpiration()
+    public function getAvailablePermissions()
     {
-        return $this->accesssTokenExpiration;
-    }
+        $this->execute();
 
-    /**
-     * Returns a refresh token
-     * 
-     * @return string
-     */
-    public function getRefreshToken()
-    {
-        return $this->refreshToken;
+        return $this->scopes;
     }
-
+    
     /**
-     * Returns an array of granted permissions
+     * Returns rejected permissions
      * 
      * @return string
      */
-    public function getScope()
+    public function getRejectedPermissions()
     {
-        return $this->grantedScope;
+        $this->execute();
+
+        return $this->rejected;
     }
 }
