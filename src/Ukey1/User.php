@@ -124,7 +124,7 @@ class User
     }
     
     /**
-     * User's country (ISO 3166-1 alpha-3 code)
+     * User's country (ISO 3166-1 alpha-2 code)
      * 
      * @return string|null
      */
