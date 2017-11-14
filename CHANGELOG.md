@@ -5,6 +5,9 @@ Note that the Ukey1 PHP SDK follows [SemVer](http://semver.org/).
 
 ## 3.x
 
+- 3.0.1 (2017-11-14)
+  - Fix issue with missing `$_SERVER["REQUEST_SCHEME"]`, so it's no longer needed to call `App::setDomain("http://example.org");`
+
 - 3.0.0 (2017-10-05)
   - Support for new Ukey1 APIv2 (please note that APIv1 will be terminated in November 15, 2017)
 
