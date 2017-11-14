@@ -160,13 +160,13 @@ class AccessToken extends Endpoint
         
         $data = $result->getData();
         
-        if (!(isset($data["access_token"]) && isset($data["expiration"]) && isset($data["scope"]))) {
+        if (!(isset($data["access_token"]) && isset($data["expiration"]))) {
             throw new EndpointException("Invalid result structure: " . $result->getBody());
         }
         
         $this->accessToken = $data["access_token"];
         $this->accessTokenExpiration = $data["expiration"];
-        $this->grantedScope = $data["scope"];
+        $this->grantedScope = isset($data["scope"]) ? $data["scope"] : [];
         $this->executed = true;
         
         return true;
