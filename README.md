@@ -76,7 +76,7 @@ use \Ukey1\Endpoints\Authentication\SystemScopes;
 use \Ukey1\Generators\RandomString;
 
 // Set your domain name including protocol
-App::setDomain("http://example.org");
+//App::setDomain("http://example.org"); // if not provided, it will be set automatically
 
 define("APP_ID", "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx");
 define("SECRET_KEY", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
@@ -148,9 +148,6 @@ session_start();
 use \Ukey1\App;
 use \Ukey1\Endpoints\Authentication\AccessToken;
 use \Ukey1\Endpoints\Authentication\User;
-
-// Set your domain name including protocol
-App::setDomain("http://example.org");
 
 define("APP_ID", "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx");
 define("SECRET_KEY", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");

@@ -306,7 +306,7 @@ class Request
         $origin = App::getDomain();
         
         if (!$origin) {
-          $origin = $_SERVER["REQUEST_SCHEME"] . "://" . (isset($_SERVER["HTTP_HOST"]) ? $_SERVER["HTTP_HOST"] : $_SERVER["SERVER_NAME"]);
+          $origin = (isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http" . (isset($_SERVER["HTTPS"]) ? "s" : "")) . "://" . (isset($_SERVER["HTTP_HOST"]) ? $_SERVER["HTTP_HOST"] : $_SERVER["SERVER_NAME"]);
         }
         
         return $origin;
