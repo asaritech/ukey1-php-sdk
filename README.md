@@ -22,7 +22,8 @@ The service is designed to help you with EU GDPR compliance.
 
 ### API specification
 
-*Coming soon*
+- [API specification](https://ukey1.docs.apiary.io/)
+- [Documentation](https://asaritech.github.io/ukey1-docs/)
 
 ## Requirements
 
