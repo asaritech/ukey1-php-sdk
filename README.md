@@ -41,10 +41,7 @@ $ composer require asaritech/ukey1-php-sdk
 
 ## Usage
 
-First, you need your app credentials (`App ID` and `Secret Key`). 
-
-Ukey1 uses advanced security methods, so its flow may be a little bit more complicated. 
-But don't worry, this SDK is prepared to be as easy-to-use as possible.
+First, you need [credentials](https://dashboard.ukey.one/developer) (`App ID` and `Secret Key`). In our dashboard, we also recommend to activate as many protections as possible.
 
 ### Sign-in / sign-up / log-in - all buttons in one
 
