@@ -51,7 +51,7 @@ Your app may look like this (of course, it's optional):
 <html>
   <head>
     <!-- ... -->
-    <link rel="stylesheet" type="text/css" href="https://gateway.ukey1cdn.com/components/ukey1-signin-button/v1/ukey1-button.min.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="https://code.ukey1cdn.com/ukey1-signin-button/master/css/ukey1-button.min.css" media="screen">
   </head>
   <body>
     <!-- ... -->
