@@ -4,7 +4,7 @@
 	"keywords": ["asaritech", "ukey1", "sdk"],
 	"type": "library",
 	"homepage": "https://github.com/asaritech/ukey1-php-sdk",
-	"license": "The MIT License",
+	"license": "MIT",
 	"authors": [
 		{
 			"name": "Ukey1 Community",
