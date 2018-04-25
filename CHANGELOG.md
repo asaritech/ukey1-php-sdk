@@ -5,6 +5,9 @@ Note that the Ukey1 PHP SDK follows [SemVer](http://semver.org/).
 
 ## 3.x
 
+- 3.0.3 (2018-04-23)
+  - Add feature `Private users` for premium apps
+
 - 3.0.2 (2017-11-14)
   - Fix issue when granted scope is null
 

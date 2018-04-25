@@ -51,6 +51,11 @@ class Request
     const POST = "POST";
     
     /**
+     * DELETE method
+     */
+    const DELETE = "DELETE";
+    
+    /**
      * Request timeout
      */
     const TIMEOUT = 10;

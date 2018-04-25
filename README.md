@@ -207,6 +207,63 @@ try {
 }
 ```
 
+## Premium features
+
+### Private users
+
+This feature also known as *Extranet users* (must be enabled in Ukey1 dashboard) is useful when you want to implement Ukey1 into your private app where only predefined users can access (typically employees within company extranet).
+
+The flow is similar. First, in your private app you need to have a simple user management. No password needed, only roles (if applicable), our User ID (that you will get at the end of the flow as usually) and Extranet Reference ID. This Reference ID serves for user deletion in the further future.
+
+In your own user management, when you create a new user, you also have to make a POST request to our endpoint `/auth/v2/extranet/users`.
+
+```php
+session_start();
+
+use \Ukey1\App;
+use \Ukey1\Endpoints\Authentication\ExtranetUsers;
+
+// Set your domain name including protocol
+//App::setDomain("http://example.org"); // if not provided, it will be set automatically
+
+define("APP_ID", "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx");
+define("SECRET_KEY", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+
+// Don't forget to use try/catch, the SDK may throw exceptions
+
+try {
+  // Entity of your app
+  $app = new App();
+  $app->appId(APP_ID)
+    ->secretKey(SECRET_KEY);
+
+  // Endpoint module
+  $extranetModule = new ExtranetUsers($app);
+  $extranetModule->setEmail("employee@example.org")
+    ->setLocale("en_GB");
+  $referenceId = $extranetModule->getReferenceId(); // $referenceId is our extranet reference ID (UUID, exactly 36 chars)
+
+  // Store $referenceId in your database, you may need it later when you want to delete the user
+  // Meanwhile, Ukey1 have just sent an email with the invitation link
+
+  // Next steps?
+  // - user clicks to the invitation link
+  // - user signs in to Ukey1 gateway
+  // - user is redirected back to homepage (or separated login page) of your app
+  // - you can directly initiate a standard Connection request (and redirect to Ukey1)
+  // - user is already logged in Ukey1, so they only must authorize your app
+  // - That's it!
+
+} catch (\Exception $e) {
+  echo "Unfortunatelly, an error was occured: " . $e->getMessage();
+  exit;
+}
+```
+
+For install purposes (it means when no user is in your user management database), the owner of the app in Ukey1 dashboard is automatically authorized to log in to your app. Just log in like in case of a public app.
+
+Please note that each environment is separate for this feature, so when you add new user on test environment, you have to add them again for production environment (and vice versa) if you need so.
+
 ## Example
 
 Would you like a working example? You can download and try [ukey1-php-sdk-example](https://github.com/noo-zh/ukey1-php-sdk-example/).
