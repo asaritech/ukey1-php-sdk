@@ -5,6 +5,10 @@ Note that the Ukey1 PHP SDK follows [SemVer](http://semver.org/).
 
 ## 3.x
 
+- 3.0.4 (2018-04-26)
+  - Add possibility to disable local verification of `request_id` and `connect_id`
+  - Add possibility to circumvent GET parameters with custom input (e.g. especially when you use client-server combination for handling Ukey1 Gateway response and send params from client to server via POST method)
+
 - 3.0.3 (2018-04-23)
   - Add feature `Private users` for premium apps
 

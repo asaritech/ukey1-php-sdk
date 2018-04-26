@@ -107,6 +107,13 @@ class AccessToken extends Endpoint
     private $grantedScope;
     
     /**
+     * Possibility to disable verificatiton of `request_id` and `connect_id`
+     *
+     * @var bool
+     */
+    public $disableInputCheck = false;
+    
+    /**
      * Sets your reference ID
      * 
      * @param string|int $requestId Your reference ID
@@ -195,7 +202,7 @@ class AccessToken extends Endpoint
      */
     private function checkInputs()
     {
-        if (!($this->requestId && $this->connectId)) {
+        if (!$this->disableInputCheck && !($this->requestId && $this->connectId)) {
             throw new EndpointException("No request ID or connect ID were provided");
         }
         
@@ -205,12 +212,14 @@ class AccessToken extends Endpoint
         $signature = $this->getParam("signature");
         $status = $this->getParam("result");
         
-        if ($this->requestId != $requestId) {
-            throw new EndpointException("Invalid request ID");
-        }
-        
-        if ($this->connectId != $connectId) {
-            throw new EndpointException("Invalid connect ID");
+        if (!$this->disableInputCheck) {
+          if ($this->requestId != $requestId) {
+              throw new EndpointException("Invalid request ID");
+          }
+
+          if ($this->connectId != $connectId) {
+              throw new EndpointException("Invalid connect ID");
+          }
         }
         
         if ($status == self::STATUS_AUTHORIZED) {
@@ -242,6 +251,16 @@ class AccessToken extends Endpoint
         } else {
             return "";
         }
+    }
+    
+    /**
+     * Append params from custom source
+     * 
+     * @param array $params Array with params
+     */
+    public function setParams($params)
+    {
+      $this->getParams = $params;
     }
     
     /**
