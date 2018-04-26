@@ -77,6 +77,13 @@ class User extends Endpoint
     private $jwt;
     
     /**
+     * Leeway to prevent server clock skew
+     *
+     * @var int
+     */
+    public $leeway = 0;
+    
+    /**
      * Sets an access token
      * 
      * @param string $accessToken Access token
@@ -221,6 +228,10 @@ class User extends Endpoint
         $this->jwt();
         
         $data = new ValidationData();
+        
+        if ($this->leeway != 0) {
+          $data->setCurrentTime(time() + $this->leeway);
+        }
         
         return $this->jwt->validate($data);
     }
