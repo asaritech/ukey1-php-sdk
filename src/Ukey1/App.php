@@ -90,46 +90,103 @@ class App
      * @param string|null $appId Your App ID
      * 
      * @return \Ukey1\App|string
+     * @deprecated Use getAppId() or setAppId() intead
      */
     public function appId($appId = null)
     {
         if ($appId) {
-            $this->appId = $appId;
-            return $this;
+            return $this->setAppId($appId);
         }
         
+        return $this->getAppId();
+    }
+
+    /**
+     * Get your App ID
+     **
+     * @return string
+     */
+    public function getAppId()
+    {
         return $this->appId;
     }
-    
+
+    /**
+     * Sets your App ID
+     *
+     * @param string $appId Your App ID
+     *
+     * @return \Ukey1\App
+     */
+    public function setAppId($appId)
+    {
+        $this->appId = $appId;
+        return $this;
+    }
+
     /**
      * Sets or gets your secret key
      * 
      * @param string|null $secretKey Your secret key
      * 
      * @return \Ukey1\App|string
+     * @deprecated Use getSecretKey() or setSecretKey() instead
      */
     public function secretKey($secretKey = null)
     {
         if ($secretKey) {
-            $this->secretKey = "-----BEGIN PUBLIC KEY-----" . PHP_EOL . chunk_split($secretKey, 64, PHP_EOL) . "-----END PUBLIC KEY-----";
-            $this->checkKey();
-            
-            return $this;
+            return $this>$this->setSecretKey($secretKey);
         }
         
+        return $this->getSecretKey();
+    }
+
+    /**
+     * Gets your secret key
+     *
+     * @return string
+     */
+    public function getSecretKey()
+    {
         return $this->secretKey;
     }
-    
+
+    /**
+     * Sets or gets your secret key
+     *
+     * @param string $secretKey Your secret key
+     *
+     * @return \Ukey1\App
+     */
+    public function setSecretKey($secretKey)
+    {
+        $this->secretKey = "-----BEGIN PUBLIC KEY-----" . PHP_EOL . chunk_split($secretKey, 64, PHP_EOL) . "-----END PUBLIC KEY-----";
+        $this->checkKey();
+
+        return $this;
+    }
+
     /**
      * Returns host
      * 
      * @return string
+     * @deprecated Use getHost() instead
      */
     public function host()
     {
-        return $this->host;
+        return $this->getHost();
     }
     
+    /**
+     * Returns host
+     *
+     * @return string
+     */
+    public function getHost()
+    {
+        return $this->host;
+    }
+
     /**
      * Checks if both App ID and Secret Key are set
      * 

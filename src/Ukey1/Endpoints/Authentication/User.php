@@ -176,10 +176,11 @@ class User extends Endpoint
      * Returns an entity of the user (deprecated)
      * 
      * @return \Ukey1\User
+     * @deprecated
      */
-    public function getUser()
+    public function user()
     {
-        return $this->user();
+        return $this->getUser();
     }
 
     /**
@@ -187,11 +188,22 @@ class User extends Endpoint
      * 
      * @return \Ukey1\User
      */
-    public function user()
+    public function getUser()
     {
         $this->execute();
 
         return new UserEntity($this->resultData);
+    }
+
+    /**
+     * Return user ID (parsed from access token)
+     *
+     * @return string
+     * @deprecated Use getId() instead
+     */
+    public function id()
+    {
+        return $this->getId();
     }
     
     /**
@@ -199,7 +211,7 @@ class User extends Endpoint
      * 
      * @return string
      */
-    public function id()
+    public function getId()
     {
         $this->jwt();
         
