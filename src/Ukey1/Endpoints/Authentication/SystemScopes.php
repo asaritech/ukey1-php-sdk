@@ -89,9 +89,9 @@ class SystemScopes extends Endpoint
         }
         
         $request = new Request(Request::GET);
-        $request->setHost($this->app->host())
+        $request->setHost($this->app->getHost())
             ->setEndpoint(self::ENDPOINT)
-            ->setCredentials($this->app->appId(), $this->app->secretKey());
+            ->setCredentials($this->app->getAppId(), $this->app->getSecretKey());
         
         if ($this->accessToken) {
             $request->setAccessToken($this->accessToken);

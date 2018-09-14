@@ -116,9 +116,9 @@ class User extends Endpoint
         }
         
         $request = new Request(Request::GET);
-        $request->setHost($this->app->host())
+        $request->setHost($this->app->getHost())
             ->setEndpoint(self::ENDPOINT)
-            ->setCredentials($this->app->appId(), $this->app->secretKey())
+            ->setCredentials($this->app->getAppId(), $this->app->getSecretKey())
             ->setAccessToken($this->accessToken);
         
         $result = $request->send();
@@ -167,7 +167,7 @@ class User extends Endpoint
         $signer = new Sha512();
         $keychain = new Keychain();
         
-        if (!$this->jwt->verify($signer, $keychain->getPublicKey($this->app->secretKey()))) {
+        if (!$this->jwt->verify($signer, $keychain->getPublicKey($this->app->getSecretKey()))) {
             throw new EndpointException("Access token verification failed");
         }
     }

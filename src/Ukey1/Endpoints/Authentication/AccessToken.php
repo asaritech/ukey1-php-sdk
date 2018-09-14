@@ -158,9 +158,9 @@ class AccessToken extends Endpoint
         }
         
         $request = new Request(Request::POST);
-        $request->setHost($this->app->host())
+        $request->setHost($this->app->getHost())
             ->setEndpoint(self::ENDPOINT)
-            ->setCredentials($this->app->appId(), $this->app->secretKey());
+            ->setCredentials($this->app->getAppId(), $this->app->getSecretKey());
         
         $result = $request->send(
             [
@@ -278,8 +278,8 @@ class AccessToken extends Endpoint
             throw new EndpointException("Invalid signature");
         }
       
-        $data = $this->app->appId() . $this->requestId . $this->connectId . $code . $status;
-        $result = openssl_verify($data, $signature, $this->app->secretKey(), OPENSSL_ALGO_SHA512);
+        $data = $this->app->getAppId() . $this->requestId . $this->connectId . $code . $status;
+        $result = openssl_verify($data, $signature, $this->app->getSecretKey(), OPENSSL_ALGO_SHA512);
         
         if ($result < 1) {
             $errstr = openssl_error_string();
