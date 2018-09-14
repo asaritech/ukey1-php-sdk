@@ -222,18 +222,18 @@ class User
      * User's image (plain URL)
      * 
      * @return string|null
-     * @deprecated Use getImage() instead
+     * @deprecated Use getImageUrl() instead
      */
     public function image()
     {
-        return $this->getImage();
+        return $this->getImageUrl();
     }
     /**
      * User's image (plain URL)
      *
      * @return string|null
      */
-    public function getImage()
+    public function getImageUrl()
     {
         return $this->get("image");
     }

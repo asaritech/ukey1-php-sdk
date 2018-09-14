@@ -191,7 +191,7 @@ try {
     $language = $user->getLanguage();
     $country = $user->getCountry();
     $email = $user->getEmail();
-    $image = $user->getImage();
+    $image = $user->getImageUrl();
 
     // For other permissions (if applicable) you can use general `get()` method
     $customScope = $user->get("another-available-scope");
