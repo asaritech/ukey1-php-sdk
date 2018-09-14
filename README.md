@@ -84,8 +84,8 @@ define("SECRET_KEY", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 try {
   // Entity of your app
   $app = new App();
-  $app->appId(APP_ID)
-    ->secretKey(SECRET_KEY);
+  $app->setAppId(APP_ID)
+    ->setSecretKey(SECRET_KEY);
 
   // You need a request ID (no need to be unique but it's better)
   // It may be a random string or number
@@ -154,8 +154,8 @@ define("SECRET_KEY", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 try {
   $app = new App();
-  $app->appId(APP_ID)
-      ->secretKey(SECRET_KEY);
+  $app->setAppId(APP_ID)
+      ->setSecretKey(SECRET_KEY);
 
   // Endpoint module
   // You needs $requestId and $connectId that you previously stored in your database or session
@@ -180,18 +180,18 @@ try {
     $userModule->setAccessToken($accessToken);
 
     // If you don't need any personal data but ID, you can get user's ID without any other request (because it's stored in access token)
-    $userId = $userModule->id();
+    $userId = $userModule->getId();
 
     // If you need more data, the following method will trigger request to get them
-    $user = $module->user();
+    $user = $module->getUser();
 
-    $scope = $user->scope();
-    $firstname = $user->firstname();
-    $surname = $user->surname();
-    $language = $user->language();
-    $country = $user->country();
-    $email = $user->email();
-    $image = $user->image();
+    $scope = $user->getScope();
+    $firstname = $user->getFirstname();
+    $surname = $user->getSurname();
+    $language = $user->getLanguage();
+    $country = $user->getCountry();
+    $email = $user->getEmail();
+    $image = $user->getImage();
 
     // For other permissions (if applicable) you can use general `get()` method
     $customScope = $user->get("another-available-scope");
@@ -234,8 +234,8 @@ define("SECRET_KEY", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 try {
   // Entity of your app
   $app = new App();
-  $app->appId(APP_ID)
-    ->secretKey(SECRET_KEY);
+  $app->setAppId(APP_ID)
+    ->setSecretKey(SECRET_KEY);
 
   // Endpoint module
   $extranetModule = new ExtranetUsers($app);
