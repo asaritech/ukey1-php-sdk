@@ -116,9 +116,9 @@ class User extends Endpoint
         }
         
         $request = new Request(Request::GET);
-        $request->setHost($this->app->host())
+        $request->setHost($this->app->getHost())
             ->setEndpoint(self::ENDPOINT)
-            ->setCredentials($this->app->appId(), $this->app->secretKey())
+            ->setCredentials($this->app->getAppId(), $this->app->getSecretKey())
             ->setAccessToken($this->accessToken);
         
         $result = $request->send();
@@ -167,7 +167,7 @@ class User extends Endpoint
         $signer = new Sha512();
         $keychain = new Keychain();
         
-        if (!$this->jwt->verify($signer, $keychain->getPublicKey($this->app->secretKey()))) {
+        if (!$this->jwt->verify($signer, $keychain->getPublicKey($this->app->getSecretKey()))) {
             throw new EndpointException("Access token verification failed");
         }
     }
@@ -176,10 +176,11 @@ class User extends Endpoint
      * Returns an entity of the user (deprecated)
      * 
      * @return \Ukey1\User
+     * @deprecated Use getUser() instead
      */
-    public function getUser()
+    public function user()
     {
-        return $this->user();
+        return $this->getUser();
     }
 
     /**
@@ -187,11 +188,22 @@ class User extends Endpoint
      * 
      * @return \Ukey1\User
      */
-    public function user()
+    public function getUser()
     {
         $this->execute();
 
         return new UserEntity($this->resultData);
+    }
+
+    /**
+     * Return user ID (parsed from access token)
+     *
+     * @return string
+     * @deprecated Use getId() instead
+     */
+    public function id()
+    {
+        return $this->getId();
     }
     
     /**
@@ -199,7 +211,7 @@ class User extends Endpoint
      * 
      * @return string
      */
-    public function id()
+    public function getId()
     {
         $this->jwt();
         

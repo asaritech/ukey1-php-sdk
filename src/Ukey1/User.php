@@ -52,12 +52,23 @@ class User
      * Returns current available scope
      * 
      * @return array
+     * @deprecated Use getScope() instead
      */
     public function scope()
     {
-        return $this->scope;
+        return $this->getScope();
     }
     
+    /**
+     * Returns current available scope
+     *
+     * @return array
+     */
+    public function getScope()
+    {
+        return $this->scope;
+    }
+
     /**
      * Gets all user values
      * 
@@ -87,68 +98,142 @@ class User
      * User ID
      * 
      * @return string
+     * @deprecated Use getId() instead
      */
     public function id()
     {
+        return $this->getId();
+    }
+
+    /**
+     * User ID
+     *
+     * @return string
+     */
+    public function getId()
+    {
         return $this->get("id");
     }
-    
+
     /**
      * User's firstname
-     * 
+     *
      * @return string|null
+     * @deprecated Use getFirstname() instead
      */
     public function firstname()
     {
+        return $this->getFirstname();
+    }
+    /**
+     * User's firstname
+     *
+     * @return string|null
+     */
+    public function getFirstname()
+    {
         return $this->get("firstname");
     }
-    
+
     /**
      * User's surname
      * 
      * @return string|null
+     * @deprecated Use getSurname() instead
      */
     public function surname()
     {
+        return $this->getSurname();
+    }
+    /**
+     * User's surname
+     *
+     * @return string|null
+     */
+    public function getSurname()
+    {
         return $this->get("surname");
     }
-    
+
     /**
      * User's language (ISO 639-1 code)
      * 
      * @return string|null
+     * @deprecated Use getLanguage() instead
      */
     public function language()
     {
-        return $this->get("language");
+        return $this->getLanguage();
     }
     
+    /**
+     * User's language (ISO 639-1 code)
+     *
+     * @return string|null
+     */
+    public function getLanguage()
+    {
+        return $this->get("language");
+    }
+
     /**
      * User's country (ISO 3166-1 alpha-2 code)
      * 
      * @return string|null
+     * @deprecated Use getCountry() instead
      */
     public function country()
     {
+        return $this->getCountry();
+    }
+
+    /**
+     * User's country (ISO 3166-1 alpha-2 code)
+     *
+     * @return string|null
+     */
+    public function getCountry()
+    {
         return $this->get("country");
     }
-    
+
     /**
      * User's email
      * 
      * @return string|null
+     * @deprecated Use getEmail() instead
      */
     public function email()
     {
+        return $this->getEmail();
+    }
+
+    /**
+     * User's email
+     *
+     * @return string|null
+     */
+    public function getEmail()
+    {
         return $this->get("email");
     }
-    
+
     /**
      * User's image (plain URL)
      * 
      * @return string|null
+     * @deprecated Use getImageUrl() instead
      */
     public function image()
+    {
+        return $this->getImageUrl();
+    }
+    /**
+     * User's image (plain URL)
+     *
+     * @return string|null
+     */
+    public function getImageUrl()
     {
         return $this->get("image");
     }

@@ -150,9 +150,9 @@ class ExtranetUsers extends Endpoint
         }
         
         $request = new Request(Request::POST);
-        $request->setHost($this->app->host())
+        $request->setHost($this->app->getHost())
             ->setEndpoint(self::ENDPOINT)
-            ->setCredentials($this->app->appId(), $this->app->secretKey());
+            ->setCredentials($this->app->getAppId(), $this->app->getSecretKey());
         
         $result = $request->send(
             [
@@ -184,9 +184,9 @@ class ExtranetUsers extends Endpoint
         }
 
         $request = new Request(Request::DELETE);
-        $request->setHost($this->app->host())
+        $request->setHost($this->app->getHost())
             ->setEndpoint(self::ENDPOINT)
-            ->setCredentials($this->app->appId(), $this->app->secretKey());
+            ->setCredentials($this->app->getAppId(), $this->app->getSecretKey());
 
         $result = $request->send(
             [
