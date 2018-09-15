@@ -52,7 +52,7 @@ class User
      * Returns current available scope
      * 
      * @return array
-     * @deprecated
+     * @deprecated Use getScope() instead
      */
     public function scope()
     {
@@ -98,7 +98,7 @@ class User
      * User ID
      * 
      * @return string
-     * @deprecated
+     * @deprecated Use getId() instead
      */
     public function id()
     {
@@ -119,7 +119,7 @@ class User
      * User's firstname
      *
      * @return string|null
-     * @deprecated
+     * @deprecated Use getFirstname() instead
      */
     public function firstname()
     {
@@ -139,7 +139,7 @@ class User
      * User's surname
      * 
      * @return string|null
-     * @deprecated
+     * @deprecated Use getSurname() instead
      */
     public function surname()
     {
@@ -159,7 +159,7 @@ class User
      * User's language (ISO 639-1 code)
      * 
      * @return string|null
-     * @deprecated
+     * @deprecated Use getLanguage() instead
      */
     public function language()
     {
@@ -180,7 +180,7 @@ class User
      * User's country (ISO 3166-1 alpha-2 code)
      * 
      * @return string|null
-     * @deprecated
+     * @deprecated Use getCountry() instead
      */
     public function country()
     {
@@ -201,7 +201,7 @@ class User
      * User's email
      * 
      * @return string|null
-     * @deprecated
+     * @deprecated Use getEmail() instead
      */
     public function email()
     {

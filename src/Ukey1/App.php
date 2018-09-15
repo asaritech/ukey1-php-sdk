@@ -90,7 +90,7 @@ class App
      * @param string|null $appId Your App ID
      * 
      * @return \Ukey1\App|string
-     * @deprecated Use getAppId() or setAppId() intead
+     * @deprecated Use getAppId() or setAppId() instead
      */
     public function appId($appId = null)
     {
@@ -135,7 +135,7 @@ class App
     public function secretKey($secretKey = null)
     {
         if ($secretKey) {
-            return $this>$this->setSecretKey($secretKey);
+            return $this->setSecretKey($secretKey);
         }
         
         return $this->getSecretKey();

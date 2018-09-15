@@ -176,7 +176,7 @@ class User extends Endpoint
      * Returns an entity of the user (deprecated)
      * 
      * @return \Ukey1\User
-     * @deprecated
+     * @deprecated Use getUser() instead
      */
     public function user()
     {
