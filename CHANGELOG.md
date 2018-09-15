@@ -5,6 +5,9 @@ Note that the Ukey1 PHP SDK follows [SemVer](http://semver.org/).
 
 ## 3.x
 
+- 3.0.6 (2018-09-15)
+  - Unification of getters/setters (thanks to @jakubboucek)
+
 - 3.0.5 (2018-04-26)
   - Fix problem with server time skew (add support for custom leeway)
 

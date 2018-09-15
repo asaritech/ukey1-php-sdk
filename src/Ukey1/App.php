@@ -39,7 +39,7 @@ class App
     /**
      * SDK version
      */
-    const SDK_VERSION = "3.0.5";
+    const SDK_VERSION = "3.0.6";
     
     /**
      * Default host
